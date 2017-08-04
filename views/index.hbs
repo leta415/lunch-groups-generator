@@ -1,2 +1,19 @@
-<h1> {{ title }} </h1>
-<p> It's lunch time! </p>
+<div class='container'>
+    <h3> Current lunch groups </h3>
+
+    <div class='flexcontainer'>
+        {{# each lunchgroups}}
+            <div class="card" style="width: 20rem;">
+                <div class="card-block">
+                    <h4 class="card-title">Group {{@index}}</h4>
+                </div>
+                <ul class="list-group list-group-flush">
+                    {{#members}}
+                        <li class="list-group-item">{{person}}</li>
+                    {{/members}}
+                </ul>
+            </div>
+        {{/each}}
+    </div>
+
+</div>
