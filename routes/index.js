@@ -4,7 +4,6 @@ var mongoClient = Promise.promisifyAll(require('mongodb')).MongoClient;
 var mongodb = require('mongodb');
 var ObjectID = require('mongodb').ObjectID;
 const util = require('util');
-// var router = express.Router();
 
 /* Home page */
 exports.view = function(req, res) {
@@ -36,7 +35,6 @@ exports.view = function(req, res) {
 							groupsArray[groupIndex] = {'members': []};
 						}
 
-
 						groupsArray[groupIndex].members.push({'person': orderedList[i]});
 					}
 
@@ -57,8 +55,6 @@ exports.view = function(req, res) {
 }
 
 var getCurrentLunchGroups = function() {
-	console.log('inside getCurrentLunchGroups()');
-
 	var url = 'mongodb://localhost:27017/employees';
 
 	return mongoClient.connectAsync(url)
@@ -66,7 +62,6 @@ var getCurrentLunchGroups = function() {
 			return db.collection('employeelist').findOne( {id: 1} );
 		})
 		.then(function(result) {
-			console.log('result: ' + util.inspect(result));
 			return result;
 		})
 		.catch(function(err) {
@@ -75,15 +70,12 @@ var getCurrentLunchGroups = function() {
 };
 
 var shuffleList = function(orderedList) {
-	console.log('inside shuffleList()');
 
 	//Shuffle the input list
 	var midPoint = Math.floor( orderedList.length / 2 );
 	var firstHalfStart = 0;
 	var secondHalfStart = midPoint;
-	// secondHalf.reverse();
 	
-	// var shuffledList = [];
 	var groupsArray = [];
 
 	for (var i = 0; i < orderedList.length; i++) {
@@ -102,7 +94,6 @@ var shuffleList = function(orderedList) {
 			secondHalfStart++;
 		}
 	}
-	console.log('end shuffling');
 
 	//Calculate number of lunch groups
 	var numGroups = Math.floor(orderedList.length/4);
@@ -121,12 +112,9 @@ var shuffleList = function(orderedList) {
 }
 
 var getShuffledLunchGroups = function() {
-	console.log('inside getShuffledLunchGroups()');
 
 	return getCurrentLunchGroups()
 		.then(function(currentGroups) {
-
-			console.log('currentGroups: ' + util.inspect(currentGroups));
 
 			if (currentGroups.orderedlist && currentGroups.orderedlist.length > 3) {
 				return shuffleList(currentGroups.orderedlist);
@@ -140,17 +128,16 @@ var getShuffledLunchGroups = function() {
 };
 
 exports.formNewLunchGroups = function(req,res) {
-	console.log('inside formNewLunchGroups');
 
 	getShuffledLunchGroups()
 		.then(function(shuffledList) {
-			console.log('inside getShuffledLunchGroups then shuffledList');
 
 			var url = 'mongodb://localhost:27017/employees';
 
 			mongoClient.connectAsync(url)
 				.then(function(db) {
 					db.collection('employeelist').update({'id': 1}, { $set: {'orderedlist': shuffledList} });
+					res.send(JSON.stringify({'newList': shuffledList}));
 				})
 				.catch(function(dberr) {
 					console.log('Unable to update new lunch groups into the db.', dberr);
