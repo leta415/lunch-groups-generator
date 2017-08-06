@@ -43,7 +43,8 @@ exports.view = function(req, res) {
 					// 				  ... 
 					//              ]
 					res.render('index', {
-						lunchgroups: groupsArray
+						lunchgroups: groupsArray,
+						list: orderedList
 					});
 				} else {
 					res.send('No employee list found.');

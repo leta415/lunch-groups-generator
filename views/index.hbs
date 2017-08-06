@@ -1,8 +1,51 @@
 <div class='container'>
-    <button id='newLunchGroupsButton' type='button' class="btn btn-primary">
+    
+    <div><button id='newLunchGroupsButton' type='button' class="btn btn-primary">
         Give me new lunch groups
-    </button>
+    </button></div>
 
+    <div><button id='modifyPeople' type='button' class="btn btn-primary" data-toggle="modal" data-target="#myModal">
+        Add or remove people
+    </button></div>
+
+
+    <!-- add/remove members modal start -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3 class="modal-title" id="exampleModalLabel">Add/Remove Lunch Members</h3>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p>Warning: Adding or removing people may slightly change the lunch groups to maintain a reasonable number of people per lunch group.</p>
+
+            <br>
+            <br>
+
+            <div class="form-group pull-right">
+                <input type="text" class="search form-control" placeholder="Search for someone...">
+            </div>
+
+            <table class="table table-striped" id="userTbl">
+                <tbody>
+                {{# each list}}
+                    <tr>
+                        <td>{{this}}</td>
+                    </tr>
+                {{/each}}
+                </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- add/remove members modal end -->
+
+
+    <!-- show lunch groups start -->
     <h3> Current lunch groups </h3>
 
     <div id='cardsWrapper' class='flexcontainer'>
@@ -19,6 +62,7 @@
             </div>
         {{/each}}
     </div>
+    <!-- show lunch groups end -->
 
 </div>
 <script src="/javascripts/my.js"></script> 
