@@ -20,20 +20,21 @@
             </button>
           </div>
           <div class="modal-body">
-            <p>Warning: Adding or removing people may slightly change the lunch groups to maintain a reasonable number of people per lunch group.</p>
+            <p><b>Heads up:</b> Adding or removing people may slightly change the lunch groups to maintain a reasonable number of people per lunch group.</p>
 
             <br>
             <br>
 
-            <div class="form-group pull-right">
-                <input type="text" class="search form-control" placeholder="Search for someone...">
+            <div class="form-group pull-left">
+                <input id='people-search-input' type="text" class="search form-control" placeholder="Search for someone...">
             </div>
 
             <table class="table table-striped" id="userTbl">
                 <tbody>
+                    <tr id='add-new-person-tr' style='display:none'><td>hello world</td></tr>
                 {{# each list}}
                     <tr>
-                        <td>{{this}}</td>
+                        <td><div class='singlePerson'><img class='deletePersonImg' style="height: 14px;" src='/images/trash-can.png'>{{this}}</div></td>
                     </tr>
                 {{/each}}
                 </tbody>

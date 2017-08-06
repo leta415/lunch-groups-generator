@@ -1,16 +1,77 @@
-$(document).ready(function(){
-    $('.search').on('keyup',function(){
+/* add/remove people modal search typeahead */
+$(document).ready(function() {
+    $('.search').on('keyup',function() {
         var searchTerm = $(this).val().toLowerCase();
-        $('#userTbl tbody tr').each(function(){
+        var showCount = 0;
+        $('#userTbl tbody tr').each(function() {
             var lineStr = $(this).text().toLowerCase();
-            if(lineStr.indexOf(searchTerm) === -1){
+            
+            if(lineStr.indexOf(searchTerm) === -1) {
                 $(this).hide();
-            }else{
+            } else {
+            	showCount++;
                 $(this).show();
             }
         });
+
+        //check if we should show the 'Add new person ...' table row
+        if (showCount <= 0) {
+        	console.log('Unable to find search');
+        	var searchInput = $('#people-search-input').val();
+        	var addNewPersonUrl = '/addPerson/' + searchInput;
+        	$('#add-new-person-tr td').html("<a id='addNewPersonATag'>Add new person <b>" + searchInput + "</b></a>");
+        	$('#add-new-person-tr').css('display', 'inherit');
+        } else {
+        	$('#add-new-person-tr').css('display', 'none');
+        }
+    });
+
+});
+
+
+$(document).ready(function() {
+    $(document).on("click", "#addNewPersonATag", function(e) {
+        console.log('addNewPersonATag clicked');
+		var searchInput = $('#people-search-input').val();
+	    var addNewPersonUrl = '/addPerson/' + searchInput;
+	    console.log('addNewPersonUrl: ' + addNewPersonUrl);
+		$.ajax({
+			type: 'GET',
+			url: addNewPersonUrl,
+			success: function(data) {
+				$('#myModal').modal('show');
+			},
+			error: function(XMLHttpRequest, textStatus, errorThrown) { 
+				console.log('There was a problem adding new person ' + searchInput + '. Status: ' + textStatus + '  Error: ' + errorThrown);
+			}
+		});
+
+        return false;
     });
 });
+
+
+$(document).ready(function() {
+    $('.singlePerson .deletePersonImg').on('click', function(e) {
+        var name = $(this).parent().text();
+
+        // console.log('trying to delete ' + name);
+
+		var removePersonUrl = '/removePerson/' + name;
+
+		$.ajax({
+			type: 'GET',
+			url: removePersonUrl,
+			success: function(data) {
+				$('#myModal').modal('show');
+			},
+			error: function(XMLHttpRequest, textStatus, errorThrown) { 
+				console.log('There was a problem removing person ' + name + '. Status: ' + textStatus + '  Error: ' + errorThrown);
+			}
+		});          
+    });
+});
+
 
 
 $('#newLunchGroupsButton').click(function() {
@@ -35,8 +96,7 @@ $('#newLunchGroupsButton').click(function() {
 			   },
 		error: function(XMLHttpRequest, textStatus, errorThrown) { 
 				   $('#newLunchGroupsButton').removeClass('disabled').addClass('active');
-                   console.log("Status: " + textStatus); 
-                   console.log("Error: " + errorThrown); 
+				   console.log('There was a problem generating new lunch groups. Status: ' + textStatus + '  Error: ' + errorThrown);
         	   }
 
 	});

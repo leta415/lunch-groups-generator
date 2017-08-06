@@ -23,25 +23,8 @@ exports.view = function(req, res) {
 				} else if (result[0].orderedlist && result[0].orderedlist.length > 0) {
 					//Get the current ordered list of employees
 					var orderedList = result[0].orderedlist;
-					var groupsArray = [];
+					var groupsArray = convertListToGroups(orderedList);
 
-					//Calculate number of lunch groups
-					var numGroups = Math.floor(orderedList.length/4);
-
-					for (var i = 0; i < orderedList.length; i++) {
-						var groupIndex = i%numGroups;
-
-						if (!groupsArray[groupIndex]) {
-							groupsArray[groupIndex] = {'members': []};
-						}
-
-						groupsArray[groupIndex].members.push({'person': orderedList[i]});
-					}
-
-					// lunchgroups: [ { members: [ {'person': <name>}, {'person': <name>}, ... ] },
-					// 				  { members: [ {'person': <name>}, {'person': <name>}, ... ] },
-					// 				  ... 
-					//              ]
 					res.render('index', {
 						lunchgroups: groupsArray,
 						list: orderedList
@@ -54,6 +37,43 @@ exports.view = function(req, res) {
 		db.close();
 	});
 }
+
+/* Get current list from db and shuffle the current ordering. Then udpate the db with new ordered list. */
+exports.formNewLunchGroups = function(req,res) {
+
+	getShuffledLunchGroups()
+		.then(function(shuffledList) {
+
+			var url = 'mongodb://localhost:27017/employees';
+
+			mongoClient.connectAsync(url)
+				.then(function(db) {
+					db.collection('employeelist').update({'id': 1}, { $set: {'orderedlist': shuffledList} });
+					res.send(JSON.stringify({'newList': shuffledList}));
+				})
+				.catch(function(dberr) {
+					console.log('Unable to update new lunch groups into the db.', dberr);
+				});
+		})
+		.catch(function(err) {
+			console.log('Unable to form new lunch groups.', err);
+		});
+};
+
+
+exports.removePerson = function(req,res) {
+	console.log('inside removePerson');
+}
+
+
+exports.addPerson = function(req,res) {
+	// console.log('inside addPerson');
+	// console.log('req.params.name: ' + util.inspect(req.params.name));
+
+	res.redirect('/');
+}
+
+/* HELPER FUNCTIONS BELOW */
 
 var getCurrentLunchGroups = function() {
 	var url = 'mongodb://localhost:27017/employees';
@@ -69,6 +89,29 @@ var getCurrentLunchGroups = function() {
 			console.log('Unable to connect to the db.', err);
 		});
 };
+
+var convertListToGroups = function(list) {
+	var groupsArray = [];
+
+	//Calculate number of lunch groups
+	var numGroups = Math.floor(list.length/4);
+
+	for (var i = 0; i < list.length; i++) {
+		var groupIndex = i%numGroups;
+
+		if (!groupsArray[groupIndex]) {
+			groupsArray[groupIndex] = {'members': []};
+		}
+
+		groupsArray[groupIndex].members.push({'person': list[i]});
+	}
+
+	// lunchgroups: [ { members: [ {'person': <name>}, {'person': <name>}, ... ] },
+	// 				  { members: [ {'person': <name>}, {'person': <name>}, ... ] },
+	// 				  ... 
+	//              ]
+	return groupsArray;
+}
 
 var shuffleList = function(orderedList) {
 
@@ -125,26 +168,5 @@ var getShuffledLunchGroups = function() {
 		})
 		.catch(function(err) {
 			console.log('Unable to get the current lunch groups to shuffle.', err);
-		});
-};
-
-exports.formNewLunchGroups = function(req,res) {
-
-	getShuffledLunchGroups()
-		.then(function(shuffledList) {
-
-			var url = 'mongodb://localhost:27017/employees';
-
-			mongoClient.connectAsync(url)
-				.then(function(db) {
-					db.collection('employeelist').update({'id': 1}, { $set: {'orderedlist': shuffledList} });
-					res.send(JSON.stringify({'newList': shuffledList}));
-				})
-				.catch(function(dberr) {
-					console.log('Unable to update new lunch groups into the db.', dberr);
-				});
-		})
-		.catch(function(err) {
-			console.log('Unable to form new lunch groups.', err);
 		});
 };
