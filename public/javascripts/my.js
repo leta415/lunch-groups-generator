@@ -146,9 +146,9 @@ function convertListToGroups(list) {
 	var groupsArray = [];
 
 	//Calculate number of lunch groups
-	var numGroups = Math.floor(list.length/4);
+	var numGroups = Math.floor(list.length/4) + 1;
 
-	if (list.length < 7) {
+	if (list.length < 6) {
 		numGroups = 1;
 	}
 

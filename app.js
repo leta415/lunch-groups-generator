@@ -9,6 +9,7 @@ var hbs = require('express-handlebars');
 var mongo = require('mongodb');
 
 var index = require('./routes/index');
+var tests = require('./routes/tests');
 
 var app = express();
 
@@ -29,6 +30,7 @@ app.get('/', index.view);
 app.get('/newLunchGroups', index.formNewLunchGroups);
 app.get('/addPerson/:name', index.addPerson);
 app.get('/removePerson/:name', index.removePerson);
+app.get('/tests', tests.view);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
