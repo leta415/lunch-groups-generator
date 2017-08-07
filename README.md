@@ -1,6 +1,13 @@
-# lunch-groups-generator
+# Lunch Time
+This web application was built to help a rapidly growing team more easily manage their lunch activities. It automatically generates groups of 3-5 people to divide up everyone into reasonably sized lunch groups. 
 
-## How to bring up the app locally
+## Approach
+### Technology stack
+bootstrap, express-handlebars, vanilla js, jquery <=> express.js <=> mongodb
+### Solving the problem
+Inspiration was drawn from casino games, where in this case each card represents a person. As an initial solution, I implemented the [riffle shuffle](https://en.wikipedia.org/wiki/Shuffling#Riffle), the most common shuffling technique.
+
+## How to bring up the app
 This web app is not currently hosted on any public server. Here are the steps to bring it up locally:
 
 Pre-requisites:
