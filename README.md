@@ -26,7 +26,7 @@ mongo
 Now in the shell, create a database called **employees** and insert an initial document:
 ```
 > use employees
-> db.employeelist.insert({id: 1}) #need to insert this exact document
+> db.employeelist.insert({id: 1, orderedlist: []}) #need to insert this exact document
 ```
 
 In a new terminal tab, bring up the app:
