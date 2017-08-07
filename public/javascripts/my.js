@@ -1,6 +1,7 @@
 /* modify people modal search typeahead */
 $(document).ready(function() {
-    $('.search').on('keyup',function() {
+
+    $('#people-search-input').on('keyup',function() {
         var searchTerm = $(this).val().toLowerCase();
         var showCount = 0;
         $('#userTbl tbody tr').each(function() {

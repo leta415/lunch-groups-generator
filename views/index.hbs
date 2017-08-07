@@ -1,12 +1,16 @@
-<div class='container'>
+<div class='container bg'>
     
-    <div><button id='newLunchGroupsButton' type='button' class="btn btn-primary">
-        Give me new lunch groups
-    </button></div>
+    <div id='buttonGroup'>
 
-    <div><button id='modifyPeople' type='button' class="btn btn-primary" data-toggle="modal" data-target="#myModal">
-        Add or remove people
-    </button></div>
+        <div class='button'><button id='newLunchGroupsButton' type='button' class="btn">
+            Give me new lunch groups
+        </button></div>
+
+        <div class='button'><button id='modifyPeople' type='button' class="btn" data-toggle="modal" data-target="#myModal">
+            Add or remove people
+        </button></div>
+
+    </div>
 
 
     <!-- add/remove members modal start -->
@@ -15,12 +19,14 @@
         <div class="modal-content">
           <div class="modal-header">
             <h3 class="modal-title" id="exampleModalLabel">Add/Remove Lunch Members</h3>
+            <br>
+            <p><b>Heads up:</b> Adding or removing people may slightly change the lunch groups to maintain a reasonable number of people per lunch group.</p>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
           <div class="modal-body">
-            <p><b>Heads up:</b> Adding or removing people may slightly change the lunch groups to maintain a reasonable number of people per lunch group.</p>
+            
             <br>
             <br>
 
@@ -33,7 +39,7 @@
                     <tr id='add-new-person-tr' style='display:none'><td>hello world</td></tr>
                 {{# each list}}
                     <tr>
-                        <td><div class='singlePerson'><img class='deletePersonImg' style="height: 14px;" src='/images/trash-can.png'>{{this}}</div></td>
+                        <td><div class='singlePerson'><img class='deletePersonImg' src='/images/trash-can.png'>{{this}}</div></td>
                     </tr>
                 {{/each}}
                 </tbody>
@@ -44,10 +50,7 @@
     </div>
     <!-- add/remove members modal end -->
 
-
     <!-- show lunch groups start -->
-    <h3> Current lunch groups </h3>
-
     <div id='cardsWrapper' class='flexcontainer'>
         {{# each lunchgroups}}
             <div class="card" style="width: 20rem;">
