@@ -32,7 +32,10 @@ exports.view = function(req, res) {
 						list: orderedList
 					});
 				} else {
-					res.send('No employee list found.');
+					res.render('index', {
+						lunchgroups: [],
+						list: []
+					});
 				}
 			});
 		}
@@ -121,10 +124,15 @@ var getCurrentLunchGroups = function() {
 };
 
 var convertListToGroups = function(list) {
+
 	var groupsArray = [];
 
 	//Calculate number of lunch groups
 	var numGroups = Math.floor(list.length/4);
+
+	if (list.length < 7) {
+		numGroups = 1;
+	}
 
 	for (var i = 0; i < list.length; i++) {
 		var groupIndex = i%numGroups;

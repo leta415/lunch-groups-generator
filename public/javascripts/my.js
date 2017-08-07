@@ -78,7 +78,6 @@ var removePersonHandler = function() {
 		url: removePersonUrl,
 		success: function(data) {
 			// console.log('removePerson data: ' + data);
-			console.log('redrawing after remove');
 			redrawModifyEmployeesTable($.parseJSON(data).newList);
 			redrawLunchGroups($.parseJSON(data).newList);
 			$('#myModal').modal('show');
@@ -105,7 +104,6 @@ $(document).on('click', '.singlePerson .deletePersonImg', function(e) {
 		url: removePersonUrl,
 		success: function(data) {
 			// console.log('removePerson data: ' + data);
-			console.log('redrawing after remove');
 			redrawModifyEmployeesTable($.parseJSON(data).newList);
 			redrawLunchGroups($.parseJSON(data).newList);
 			$('#myModal').modal('show');
@@ -141,10 +139,18 @@ $('#newLunchGroupsButton').click(function() {
 });
 
 function convertListToGroups(list) {
+	if (list == null) {
+		return list;
+	}
+
 	var groupsArray = [];
 
 	//Calculate number of lunch groups
 	var numGroups = Math.floor(list.length/4);
+
+	if (list.length < 7) {
+		numGroups = 1;
+	}
 
 	for (var i = 0; i < list.length; i++) {
 		var groupIndex = i%numGroups;
