@@ -1,4 +1,6 @@
 # lunch-groups-generator
+
+## How to bring up the app locally
 This web app is not currently hosted on any public server. Here are the steps to bring it up locally:
 
 Pre-requisites:
@@ -37,3 +39,10 @@ If no errors, open a browser and go to url:
 ```
 http://localhost:3000/
 ```
+
+## How to run the unit tests
+To run the tests, go to
+```
+http://localhost:3000/tests
+```
+Output is in console log.
