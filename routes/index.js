@@ -25,6 +25,8 @@ exports.view = function(req, res) {
 					var orderedList = result[0].orderedlist;
 					var groupsArray = convertListToGroups(orderedList);
 
+					orderedList.sort();
+
 					res.render('index', {
 						lunchgroups: groupsArray,
 						list: orderedList
@@ -62,15 +64,43 @@ exports.formNewLunchGroups = function(req,res) {
 
 
 exports.removePerson = function(req,res) {
-	console.log('inside removePerson');
+	var url = 'mongodb://localhost:27017/employees';
+
+	mongoClient.connectAsync(url)
+		.then(function(db) {
+			return db.collection('employeelist').findOneAndUpdate({'id': 1}, { $pull: {'orderedlist': req.params.name} });
+		})
+		.then(function(updatedDoc) {
+			var updatedList = updatedDoc.value.orderedlist;
+			var index = updatedList.indexOf(req.params.name);
+			if (index > -1) {
+    			updatedList.splice(index, 1);
+			}	
+
+			res.send(JSON.stringify({'newList': updatedList}));
+		})
+		.catch(function(dberr) {
+			console.log('Unable to update new lunch groups into the db.', dberr);
+		});
 }
 
 
 exports.addPerson = function(req,res) {
-	// console.log('inside addPerson');
-	// console.log('req.params.name: ' + util.inspect(req.params.name));
+	var url = 'mongodb://localhost:27017/employees';
 
-	res.redirect('/');
+	mongoClient.connectAsync(url)
+		.then(function(db) {
+			return db.collection('employeelist').findOneAndUpdate({'id': 1}, { $addToSet: {'orderedlist': req.params.name} });
+		})
+		.then(function(updatedDoc) {
+			var updatedList = updatedDoc.value.orderedlist;
+			updatedList.push(req.params.name);
+			
+			res.send(JSON.stringify({'newList': updatedList}));
+		})
+		.catch(function(dberr) {
+			console.log('Unable to update new lunch groups into the db.', dberr);
+		});
 }
 
 /* HELPER FUNCTIONS BELOW */

@@ -1,4 +1,4 @@
-/* add/remove people modal search typeahead */
+/* modify people modal search typeahead */
 $(document).ready(function() {
     $('.search').on('keyup',function() {
         var searchTerm = $(this).val().toLowerCase();
@@ -16,11 +16,14 @@ $(document).ready(function() {
 
         //check if we should show the 'Add new person ...' table row
         if (showCount <= 0) {
-        	console.log('Unable to find search');
+
         	var searchInput = $('#people-search-input').val();
         	var addNewPersonUrl = '/addPerson/' + searchInput;
         	$('#add-new-person-tr td').html("<a id='addNewPersonATag'>Add new person <b>" + searchInput + "</b></a>");
         	$('#add-new-person-tr').css('display', 'inherit');
+
+        	$('#addNewPersonATag').click(addNewPersonHandler);
+
         } else {
         	$('#add-new-person-tr').css('display', 'none');
         }
@@ -29,51 +32,92 @@ $(document).ready(function() {
 });
 
 
-$(document).ready(function() {
-    $(document).on("click", "#addNewPersonATag", function(e) {
-        console.log('addNewPersonATag clicked');
-		var searchInput = $('#people-search-input').val();
-	    var addNewPersonUrl = '/addPerson/' + searchInput;
-	    console.log('addNewPersonUrl: ' + addNewPersonUrl);
-		$.ajax({
-			type: 'GET',
-			url: addNewPersonUrl,
-			success: function(data) {
-				$('#myModal').modal('show');
-			},
-			error: function(XMLHttpRequest, textStatus, errorThrown) { 
-				console.log('There was a problem adding new person ' + searchInput + '. Status: ' + textStatus + '  Error: ' + errorThrown);
-			}
-		});
+/* Add a new person onclick handler */
+var addNewPersonHandler = function() {
 
-        return false;
-    });
+	var searchInput = $('#people-search-input').val();
+
+	//this will probably never happen with typscript but just as extra safety check
+    if (!searchInput || searchInput.length == 0) {
+    	return;
+    }
+
+    var addNewPersonUrl = '/addPerson/' + searchInput;
+
+	$.ajax({
+		type: 'GET',
+		url: addNewPersonUrl,
+		success: function(data) {
+			// console.log('addPerson data: ' + data);
+
+			redrawModifyEmployeesTable($.parseJSON(data).newList);
+			redrawLunchGroups($.parseJSON(data).newList);
+			$('#myModal').modal('show');
+		},
+		error: function(XMLHttpRequest, textStatus, errorThrown) { 
+			console.log('There was a problem adding new person ' + searchInput + '. Status: ' + textStatus + '  Error: ' + errorThrown);
+		}
+	});
+}
+
+
+/* Remove a person trash can onclick handler */
+var removePersonHandler = function() {
+	var name = $(this).parent().text();
+
+    //this will probably never happen with typscript but just as extra safety check
+    if (!name || name.length == 0) {
+    	return;
+    }
+
+	var removePersonUrl = '/removePerson/' + name;
+
+	$.ajax({
+		type: 'GET',
+		url: removePersonUrl,
+		success: function(data) {
+			// console.log('removePerson data: ' + data);
+			console.log('redrawing after remove');
+			redrawModifyEmployeesTable($.parseJSON(data).newList);
+			redrawLunchGroups($.parseJSON(data).newList);
+			$('#myModal').modal('show');
+		},
+		error: function(XMLHttpRequest, textStatus, errorThrown) { 
+			console.log('There was a problem removing person ' + name + '. Status: ' + textStatus + '  Error: ' + errorThrown);
+		}
+	}); 
+}
+
+/* Remove a person trash can onclick handler */
+$(document).on('click', '.singlePerson .deletePersonImg', function(e) {
+    var name = $(this).parent().text();
+
+    //this will probably never happen with typscript but just as extra safety check
+    if (!name || name.length == 0) {
+    	return;
+    }
+
+	var removePersonUrl = '/removePerson/' + name;
+
+	$.ajax({
+		type: 'GET',
+		url: removePersonUrl,
+		success: function(data) {
+			// console.log('removePerson data: ' + data);
+			console.log('redrawing after remove');
+			redrawModifyEmployeesTable($.parseJSON(data).newList);
+			redrawLunchGroups($.parseJSON(data).newList);
+			$('#myModal').modal('show');
+		},
+		error: function(XMLHttpRequest, textStatus, errorThrown) { 
+			console.log('There was a problem removing person ' + name + '. Status: ' + textStatus + '  Error: ' + errorThrown);
+		}
+	});    
+	return false;      
 });
 
 
-$(document).ready(function() {
-    $('.singlePerson .deletePersonImg').on('click', function(e) {
-        var name = $(this).parent().text();
-
-        // console.log('trying to delete ' + name);
-
-		var removePersonUrl = '/removePerson/' + name;
-
-		$.ajax({
-			type: 'GET',
-			url: removePersonUrl,
-			success: function(data) {
-				$('#myModal').modal('show');
-			},
-			error: function(XMLHttpRequest, textStatus, errorThrown) { 
-				console.log('There was a problem removing person ' + name + '. Status: ' + textStatus + '  Error: ' + errorThrown);
-			}
-		});          
-    });
-});
-
-
-
+/* Create new lunch groups button onclick handler */
 $('#newLunchGroupsButton').click(function() {
 
 	$('#newLunchGroupsButton').removeClass('active').addClass('disabled');
@@ -84,14 +128,7 @@ $('#newLunchGroupsButton').click(function() {
 		success: function(data) {
 					// data = {'newList': [<person1>, <person2>, ...]}
 
-					$('#cardsWrapper').empty(); //empty out the lunch groups
-
-					var newLunchGroups = convertListToGroups($.parseJSON(data).newList);
-
-					for (var groupIndex = 0; groupIndex < newLunchGroups.length; groupIndex++) {
-						createLunchGroupCard(newLunchGroups[groupIndex], groupIndex);
-					}
-
+					redrawLunchGroups($.parseJSON(data).newList);
 					$('#newLunchGroupsButton').removeClass('disabled').addClass('active');
 			   },
 		error: function(XMLHttpRequest, textStatus, errorThrown) { 
@@ -125,6 +162,47 @@ function convertListToGroups(list) {
 	return groupsArray;
 }
 
+
+/* HELPER FUNCTIONS BELOW */
+function redrawModifyEmployeesTable(list) {
+	list.sort();
+
+   $('#userTbl').empty();
+
+   var tbody = "<tbody></tbody>";
+   var addNewPersonTr = "<tr id='add-new-person-tr' style='display:none'><td>hello world</td></tr>";
+   var personTr = "<tr></tr>";
+   var personTd = "<td></td>";
+   var personTdDiv = "<div class='singlePerson'></div>";
+   var personTdImg = "<img class='deletePersonImg' style='height: 14px;' src='/images/trash-can.png'>";
+
+   var tbodyElem = $(tbody).appendTo('#userTbl')[0];
+   var addNewPersonTrElem = $(addNewPersonTr).appendTo(tbodyElem)[0]; 
+
+   for (var i = 0; i < list.length; i++) {
+
+   		var personTrElem = $(personTr).appendTo(tbodyElem)[0];
+   		var personTdElem = $(personTd).appendTo(personTrElem)[0];
+   		var personTdDivElem = $(personTdDiv).appendTo(personTdElem)[0];
+   		var personTdImgElem = $(personTdImg).appendTo(personTdDivElem)[0];
+   		personTdImgElem.click = removePersonHandler;
+   		personTdDivElem.append(list[i]);
+   }
+
+   $('#people-search-input').val('');
+}
+
+
+function redrawLunchGroups(list) {
+	$('#cardsWrapper').empty(); //empty out the lunch group cards
+
+	var newLunchGroups = convertListToGroups(list);
+
+	for (var groupIndex = 0; groupIndex < newLunchGroups.length; groupIndex++) {
+		createLunchGroupCard(newLunchGroups[groupIndex], groupIndex);
+	}
+}
+
 function createLunchGroupCard(lunchGroup, lunchGroupNumber) {
 	//lunchGroup = { members: [ {'person': <name>}, {'person': <name>}, ... ] }
 	//lunchGroupNumber = <int>
@@ -151,5 +229,3 @@ function createLunchGroupCard(lunchGroup, lunchGroupNumber) {
 		personDiv.append(personName);
 	}
 }
-
-
