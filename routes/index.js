@@ -128,7 +128,7 @@ var convertListToGroups = function(list) {
 	var groupsArray = [];
 
 	//Calculate number of lunch groups
-	var numGroups = Math.floor(list.length/4) + 1;
+	var numGroups = Math.ceil(list.length/4);
 
 	if (list.length < 6) {
 		numGroups = 1;
@@ -152,6 +152,7 @@ var convertListToGroups = function(list) {
 }
 
 var shuffleList = function(orderedList) {
+	//['perso1', 'person2', 'person3',...]
 
 	//Shuffle the input list
 	var midPoint = Math.floor( orderedList.length / 2 );
