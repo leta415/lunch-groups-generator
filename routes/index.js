@@ -25,7 +25,7 @@ exports.view = function(req, res) {
 					var orderedList = result[0].orderedlist;
 					var groupsArray = convertListToGroups(orderedList);
 
-					orderedList.sort();
+					orderedList.sort(); //for modify employee modal
 
 					res.render('index', {
 						lunchgroups: groupsArray,
@@ -54,7 +54,7 @@ exports.formNewLunchGroups = function(req,res) {
 			mongoClient.connectAsync(url)
 				.then(function(db) {
 					db.collection('employeelist').update({'id': 1}, { $set: {'orderedlist': shuffledList} });
-					res.send(JSON.stringify({'newList': shuffledList}));
+					res.send(JSON.stringify({'newList': shuffledList, 'newGroups': convertListToGroups(shuffledList)}));
 				})
 				.catch(function(dberr) {
 					console.log('Unable to update new lunch groups into the db.', dberr);
@@ -80,7 +80,7 @@ exports.removePerson = function(req,res) {
     			updatedList.splice(index, 1);
 			}	
 
-			res.send(JSON.stringify({'newList': updatedList}));
+			res.send(JSON.stringify({'newList': updatedList, 'newGroups': convertListToGroups(updatedList)}));
 		})
 		.catch(function(dberr) {
 			console.log('Unable to update new lunch groups into the db.', dberr);
@@ -99,7 +99,7 @@ exports.addPerson = function(req,res) {
 			var updatedList = updatedDoc.value.orderedlist;
 			updatedList.push(req.params.name);
 			
-			res.send(JSON.stringify({'newList': updatedList}));
+			res.send(JSON.stringify( {'newList': updatedList, 'newGroups': convertListToGroups(updatedList)} ));
 		})
 		.catch(function(dberr) {
 			console.log('Unable to update new lunch groups into the db.', dberr);
@@ -152,7 +152,7 @@ var convertListToGroups = function(list) {
 }
 
 var shuffleList = function(orderedList) {
-	//['perso1', 'person2', 'person3',...]
+	//['person2', 'person3', 'person1',...]
 
 	//Shuffle the input list
 	var midPoint = Math.floor( orderedList.length / 2 );

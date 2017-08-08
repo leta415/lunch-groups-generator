@@ -52,7 +52,7 @@ var addNewPersonHandler = function() {
 			// console.log('addPerson data: ' + data);
 
 			redrawModifyEmployeesTable($.parseJSON(data).newList);
-			redrawLunchGroups($.parseJSON(data).newList);
+			redrawLunchGroups($.parseJSON(data).newGroups);
 			$('#myModal').modal('show');
 		},
 		error: function(XMLHttpRequest, textStatus, errorThrown) { 
@@ -79,7 +79,7 @@ var removePersonHandler = function() {
 		success: function(data) {
 			// console.log('removePerson data: ' + data);
 			redrawModifyEmployeesTable($.parseJSON(data).newList);
-			redrawLunchGroups($.parseJSON(data).newList);
+			redrawLunchGroups($.parseJSON(data).newGroups);
 			$('#myModal').modal('show');
 		},
 		error: function(XMLHttpRequest, textStatus, errorThrown) { 
@@ -89,31 +89,7 @@ var removePersonHandler = function() {
 }
 
 /* Remove a person trash can onclick handler */
-$(document).on('click', '.singlePerson .deletePersonImg', function(e) {
-    var name = $(this).parent().text();
-
-    //this will probably never happen with typscript but just as extra safety check
-    if (!name || name.length == 0) {
-    	return;
-    }
-
-	var removePersonUrl = '/removePerson/' + name;
-
-	$.ajax({
-		type: 'GET',
-		url: removePersonUrl,
-		success: function(data) {
-			// console.log('removePerson data: ' + data);
-			redrawModifyEmployeesTable($.parseJSON(data).newList);
-			redrawLunchGroups($.parseJSON(data).newList);
-			$('#myModal').modal('show');
-		},
-		error: function(XMLHttpRequest, textStatus, errorThrown) { 
-			console.log('There was a problem removing person ' + name + '. Status: ' + textStatus + '  Error: ' + errorThrown);
-		}
-	});    
-	return false;      
-});
+$(document).on('click', '.singlePerson .deletePersonImg', removePersonHandler);
 
 
 /* Create new lunch groups button onclick handler */
@@ -125,9 +101,7 @@ $('#newLunchGroupsButton').click(function() {
 		type: 'GET',
 		url: '/newLunchGroups',
 		success: function(data) {
-					// data = {'newList': [<person1>, <person2>, ...]}
-
-					redrawLunchGroups($.parseJSON(data).newList);
+					redrawLunchGroups($.parseJSON(data).newGroups);
 					$('#newLunchGroupsButton').removeClass('disabled').addClass('active');
 			   },
 		error: function(XMLHttpRequest, textStatus, errorThrown) { 
@@ -137,37 +111,6 @@ $('#newLunchGroupsButton').click(function() {
 
 	});
 });
-
-function convertListToGroups(list) {
-	if (list == null) {
-		return list;
-	}
-
-	var groupsArray = [];
-
-	//Calculate number of lunch groups
-	var numGroups = Math.ceil(list.length/4);
-
-	if (list.length < 6) {
-		numGroups = 1;
-	}
-
-	for (var i = 0; i < list.length; i++) {
-		var groupIndex = i%numGroups;
-
-		if (!groupsArray[groupIndex]) {
-			groupsArray[groupIndex] = {'members': []};
-		}
-
-		groupsArray[groupIndex].members.push({'person': list[i]});
-	}
-
-	// lunchgroups: [ { members: [ {'person': <name>}, {'person': <name>}, ... ] },
-	// 				  { members: [ {'person': <name>}, {'person': <name>}, ... ] },
-	// 				  ... 
-	//              ]
-	return groupsArray;
-}
 
 
 /* HELPER FUNCTIONS BELOW */
@@ -200,13 +143,11 @@ function redrawModifyEmployeesTable(list) {
 }
 
 
-function redrawLunchGroups(list) {
+function redrawLunchGroups(groups) {
 	$('#cardsWrapper').empty(); //empty out the lunch group cards
 
-	var newLunchGroups = convertListToGroups(list);
-
-	for (var groupIndex = 0; groupIndex < newLunchGroups.length; groupIndex++) {
-		createLunchGroupCard(newLunchGroups[groupIndex], groupIndex);
+	for (var i = 0; i < groups.length; i++) {
+		createLunchGroupCard(groups[i], i);
 	}
 }
 
