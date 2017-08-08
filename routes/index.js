@@ -159,8 +159,6 @@ var shuffleList = function(orderedList) {
 	var firstHalfStart = 0;
 	var secondHalfStart = midPoint;
 	
-	var groupsArray = [];
-
 	for (var i = 0; i < orderedList.length; i++) {
 		var rand = Math.random();
 		if ( (rand < 0.5 || secondHalfStart >= orderedList.length) && firstHalfStart < midPoint) { 
@@ -176,19 +174,6 @@ var shuffleList = function(orderedList) {
 			orderedList[i] = temp;
 			secondHalfStart++;
 		}
-	}
-
-	//Calculate number of lunch groups
-	var numGroups = Math.floor(orderedList.length/4);
-
-	for (var i = 0; i < orderedList.length; i++) {
-		var groupIndex = i%numGroups;
-
-		if (!groupsArray[groupIndex]) {
-			groupsArray[groupIndex] = {'members': []};
-		}
-
-		groupsArray[groupIndex].members.push({'person': orderedList[i]});
 	}
 
 	return orderedList;
